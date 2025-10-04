@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Expense App – Manager Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-title">Manager Dashboard</div>
+      <div style="width: 100%">
+        <h3 style="color: #22223b; margin-bottom: 0.5rem; font-size: 1.13rem">
+          Pending Approval
+        </h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.96rem">
+          <thead>
+            <tr style="background: #f3f0ff">
+              <th>Employee</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="pending-table">
+            </tbody>
+        </table>
+      </div>
+      <a class="signup-link" href="login.html" onclick="logout()">Logout</a>
+    </div>
+    <script>
+      async function loadPending() {
+        try {
+          const res = await fetch("http://localhost:5000/api/manager/pending-expenses");
+          if (!res.ok) throw new Error("Could not fetch data.");
+          
+          const pendingExpenses = await res.json();
+          const tbody = document.getElementById("pending-table");
+
+          if (pendingExpenses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 1rem;">No pending expenses.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = pendingExpenses
+            .map(
+              (r) => `<tr>
+                  <td>${r.user}</td>
+                  <td>${r.amount} ${r.currency}</td>
+                  <td>${new Date(r.date).toLocaleDateString()}</td>
+                  <td>
+                    <button onclick="approve('${r._id}')">Approve</button>
+                    <button onclick="reject('${r._id}')" style="margin-left:4px;">Reject</button>
+                  </td>
+                </tr>`
+            )
+            .join("");
+        } catch (error) {
+           const tbody = document.getElementById("pending-table");
+           tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 1rem; color: red;">Error loading data.</td></tr>';
+        }
+      }
+
+      async function approve(id) {
+        // TODO: Add API call to approve the expense
+        alert("Approved expense #" + id + " (API call not implemented)");
+        loadPending(); // Refresh the list
+      }
+      
+      async function reject(id) {
+        // TODO: Add API call to reject the expense
+        alert("Rejected expense #" + id + " (API call not implemented)");
+        loadPending(); // Refresh the list
+      }
+
+      function logout() {
+        localStorage.clear(); // Clear user data on logout
+        window.location.href = 'login.html';
+      }
+
+      // Load data when the page loads
+      document.addEventListener("DOMContentLoaded", loadPending);
+    </script>
+  </body>
+</html>
